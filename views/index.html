@@ -1,0 +1,46 @@
+<!-- This is a static file -->
+<!-- served from your routes in server.js -->
+
+<!-- You might want to try something fancier: -->
+<!-- html/nunjucks docs: https://mozilla.github.io/nunjucks/ -->
+<!-- pug: https://pugjs.org/ -->
+<!-- haml: http://haml.info/ -->
+<!-- hbs(handlebars): http://handlebarsjs.com/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Chatbot with Dialogflow</title>
+    <link id="favicon" rel="icon" href="https://glitch.com/edit/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta name="google-site-verification" content="TW66u6i0a_ow9887W1UNWgAlHQuqwsCx-PQi27Q9Td4" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css">
+    
+    <!-- import the webpage's client-side javascript file -->
+    <script src="/client.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a href="/assets/chatbot-bdx-dialogflow1-2019-02-01_131115.tgz" download="chatbot-dialogflow-lastest">
+        Archive du projet
+      </a>
+    </header>
+
+    <button class="open-button" onclick="openForm()">Chat</button>
+
+<div class="chat-popup" id="myForm">
+    <h1>Chat</h1>
+    <ul id="msg-list">
+    </ul>
+  <form class="send-container">
+    <textarea placeholder="Type message.." id="current-msg" rows="1" required></textarea>
+    <button type="button" class="btn" onclick="onSend()" onkeypress="onKeyPress(event)">Send</button>
+    <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+  </form>
+</div>
+    
+  </body>
+</html>
