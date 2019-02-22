@@ -12,13 +12,6 @@ function closeForm() {
   $("myForm").style.display = "none";
 }
 
-function onKeyPress(event) {
-  event.preventDefault();
-  if (event.key = 'Enter') {
-    onSend();
-  }
-}
-
 function onSend() {
   var newMsg = document.createElement("li");
   newMsg.classList.add("msg", "client-msg");
