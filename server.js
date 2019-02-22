@@ -12,13 +12,13 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 
 const projectLanguageCode = 'fr-FR';
-const projectId = process.env.DIALOGFLOW_PROJECT_ID;
+const projectId = 'formation-bdx';
 // Instantiates a session client
 const sessionClient = new dialogflow.SessionsClient();
 
 app.use(session({
     store: new FileStore("./.sessions/"),
-    secret: process.env.SESSION_SECRET,
+    secret: '%]N.]x5QYP?3xH2C',
     resave: true,
     saveUninitialized: true,
     messages: []
@@ -40,7 +40,7 @@ app.get('/', function(request, response) {
 });
 
 // listen for requests :)
-const listener = app.listen(process.env.PORT, function() {
+const listener = app.listen('8080', function() {
   console.log('Your app is listening on port ' + listener.address().port);
 });
 

@@ -1,0 +1,17 @@
+packages à installer 
+
+npm (ofc)
+express & express-session
+version récente de node (10 on va dire)
+body parser
+dialogflow
+uuid
+structjson
+session-file-stores
+
+TODO
+
+https://cloud.google.com/docs/authentication/production#auth-cloud-implicit-nodejs (pour le mettre dans le code et non le bashrc)
+A ajouter dans le .bashrc:
+export GOOGLE_APPLICATION_CREDENTIALS="Formation-Bdx.json"
+
