@@ -230,4 +230,3 @@ async function deleteContext(projectId, sessionId, contextId) {
   return result;
   // [END dialogflow_delete_context]
 }
-

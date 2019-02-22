@@ -3,11 +3,11 @@ packages à installer
 npm (ofc)
 express & express-session
 version récente de node (10 on va dire)
-body parser
+body-parser
 dialogflow
 uuid
 structjson
-session-file-stores
+session-file-store
 
 TODO
 

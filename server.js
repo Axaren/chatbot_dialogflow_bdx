@@ -41,7 +41,9 @@ app.get('/', function(request, response) {
 
 // listen for requests :)
 const listener = app.listen('8080', function() {
-  console.log('Your app is listening on port ' + listener.address().port);
+  console.log('Rendez vous sur la page web suivante pour converser avec le chatbot: http://localhost:8080');
+
+  
 });
 
 app.post('/sendMsg',function(request,response)  {
@@ -86,6 +88,7 @@ function detectTextIntent(projectId, sessionId, query, languageCode) {
       // First query.
       console.log(`Sending query "${query}"`);
       promise = sessionClient.detectIntent(request);
+
     } else {
       promise = promise.then(responses => {
         console.log('Detected intent');
