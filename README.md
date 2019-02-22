@@ -23,16 +23,10 @@ Voici des exemples d'échange qui fonctionnent avec notre prototype:
 ## Accéder au chatbot
 Notre chatbot est accessible de deux façons différentes:
 * En ligne, il faut se rendre sur la page web suivante: https://chatbot-bdx-dialogflow1.glitch.me/
-* En local, il faut se rendre à la racine du projet et lancer le commande `node server.js`, puis aller à l'adresse http://localhost:8080/ depuis un navigateur web.\
+* En local, il faut se rendre à la racine du projet et lancer le commande `node start`, puis aller à l'adresse http://localhost:8080/ depuis un navigateur web.\
 Il faut au préalable manuellement réaliser plusieurs choses:
   * Créer une variable d'environnement dans le fichier .bashrc: `export GOOGLE_APPLICATION_CREDENTIALS="Formation-Bdx.json"`
-  * Installer des paquets via `npm`:
-     * `npm install express & express-session`
-     * `npm install body-parser`
-     * `npm install dialogflow`
-     * `npm install uuid`
-     * `npm install structjson`
-     * `npm install session-file-store` 
+  * installer les paquets necessaires avec `npm install`
 
 ### Auteurs
 Nicolas Desclaux, Nicolas Deguillaume, Nathan Lesne, Jacques Pourtier
