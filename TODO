@@ -1,0 +1,9 @@
+-Installer la version 8.x+ de nodejs
+-lancer la commande npm install
+
+https://cloud.google.com/docs/authentication/production#auth-cloud-implicit-nodejs (pour le mettre dans le code et non le bashrc)
+-A ajouter dans le .bashrc:
+export GOOGLE_APPLICATION_CREDENTIALS="Formation-Bdx.json"
+
+Pour lancer l'application : npm start
+
