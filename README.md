@@ -25,7 +25,9 @@ Notre chatbot est accessible de deux façons différentes:
 * En ligne, il faut se rendre sur la page web suivante: https://chatbot-bdx-dialogflow1.glitch.me/
 * En local, il faut se rendre à la racine du projet et lancer le commande `node start`, puis aller à l'adresse http://localhost:8080/ depuis un navigateur web.\
 Il faut au préalable manuellement réaliser plusieurs choses:
-  * Créer une variable d'environnement dans le fichier .bashrc: `export GOOGLE_APPLICATION_CREDENTIALS="Formation-Bdx.json"`
+  * Ajouter la variable d'environnement pour l'authentification de l'API: 
+    * Sous linux: `export GOOGLE_APPLICATION_CREDENTIALS="Formation-Bdx.json"` (pour la session bash en cours)
+    * Sous Windows: `set GOOGLE_APPLICATION_CREDENTIALS="Formation-Bdx.json"`
   * installer les paquets necessaires avec `npm install`
 
 ### Auteurs
