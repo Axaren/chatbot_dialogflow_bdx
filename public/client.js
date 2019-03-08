@@ -43,7 +43,7 @@ function scrollToBottom() {
 }
 
 function sendMessage(content) {
-  var url = "https://chatbot-bdx-dialogflow1.glitch.me/sendMsg";
+  var url = "http://localhost:8080/sendMsg";
   var data = "message="+content;
   var req = new XMLHttpRequest();
   
