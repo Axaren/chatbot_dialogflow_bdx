@@ -13,7 +13,7 @@
     "@google-cloud/storage": "^2.4.2",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
-    "dialogflow": "^0.7.0",
+    "dialogflow": "^0.8.2",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "memorystore": "^1.6.0",
@@ -31,7 +31,7 @@
   "license": "MIT",
   "keywords": [
     "node",
-    "glitch",
+    "dialogflow",
     "express"
   ]
 }

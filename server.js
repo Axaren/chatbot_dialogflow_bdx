@@ -5,7 +5,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const dialogflow = require('dialogflow');
-const uuid = require('uuid');
 const assets = require('./assets');
 const structjson = require('structjson');
 const session = require('express-session');
@@ -62,13 +61,14 @@ function detectTextIntent(projectId, sessionId, query, languageCode) {
   // [START dialogflow_detect_intent_text]
 
   // Instantiates a session client
-  const sessionClient = new dialogflow.SessionsClient();
+  const sessionClient = new dialogflow.SessionsClient({ keyFilename: "Formation-Bdx-40c67b0cad83.json" });
 
   if(!query)
     return;
 
   // The path to identify the agent that owns the created intent.
   const sessionPath = sessionClient.sessionPath(projectId, sessionId);
+  console.log(sessionPath);
 
   let promise;
 
