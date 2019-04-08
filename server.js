@@ -61,7 +61,7 @@ function detectTextIntent(projectId, sessionId, query, languageCode) {
   // [START dialogflow_detect_intent_text]
 
   // Instantiates a session client
-  const sessionClient = new dialogflow.SessionsClient({ keyFilename: "Formation-Bdx-40c67b0cad83.json" });
+  const sessionClient = new dialogflow.SessionsClient({ keyFilename: "auth_file.json" });
 
   if(!query)
     return;
