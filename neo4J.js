@@ -18,7 +18,7 @@ match ()-[r:isUE]->() delete r;
 const server = http.createServer(function (req, res) {
     if (req.url != '/favicon.ico') {
 
-        clearBdd().then( () => {
+        /*clearBdd().then( () => {
 
 
             readXML().then(() => {
@@ -27,7 +27,16 @@ const server = http.createServer(function (req, res) {
                 driver.close();
                 res.end();
             });
-        })
+        })*/
+
+        res.writeHead(200);
+        getAllUE().then( (result) => {
+
+            result.forEach( ue => {
+                console.log(ue.name);
+            })
+
+        });
 
     }
 
@@ -140,6 +149,32 @@ function clearNode(){
             console.log("clear node terminé !");
             resolve();
 
+        }).catch( (err) => {
+            reject(err);
+        });
+    });
+}
+
+function getAllUE(){
+
+    let tabUE = [];
+
+    return new Promise( (resolve, reject) => {
+        const requestCypher = 'match (ue:UE) return ue';
+
+        const resultPromise = session.run(requestCypher);
+
+        resultPromise.then((result) => {
+
+            for (let i = 0; i < result.records.length; i++){
+
+                //console.log(result.records[i].get(0).properties);
+                tabUE.push(result.records[i].get(0).properties);
+
+                if (i+1 === result.records.length){
+                    resolve(tabUE);
+                }
+            }
         }).catch( (err) => {
             reject(err);
         });
