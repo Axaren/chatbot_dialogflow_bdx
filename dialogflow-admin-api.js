@@ -4,6 +4,8 @@ exports.createIntent = createIntent;
 exports.deleteIntent = deleteIntent;
 exports.createContext = createContext;
 exports.deleteContext = deleteContext;
+exports.createEntity = createEntity;
+exports.createEntityType = createEntityType;
 
 async function createEntityType(projectId, displayName, kind) {
   // [START dialogflow_create_entity_type]
@@ -105,12 +107,7 @@ async function deleteEntity(projectId, entityTypeId, entityValue) {
   // [END dialogflow_delete_entity]
 }
 
-async function createIntent(
-  projectId,
-  displayName,
-  trainingPhrasesParts,
-  messageTexts
-) {
+async function createIntent(projectId, displayName, trainingPhrasesParts, messageTexts, entityType) {
   // [START dialogflow_create_intent]
   // Imports the Dialogflow library
 
@@ -125,6 +122,7 @@ async function createIntent(
   trainingPhrasesParts.forEach(trainingPhrasesPart => {
     const part = {
       text: trainingPhrasesPart,
+      entityType: '@'+entityType,
     };
 
     // Here we create a new training phrase for each provided part.
@@ -148,6 +146,11 @@ async function createIntent(
     displayName: displayName,
     trainingPhrases: trainingPhrases,
     messages: [message],
+    parameters: [{
+      name : "",
+      displayName: "Adjectif",
+      entityTypeDisplayName: "@Adjectif",
+    }]
   };
 
   const createIntentRequest = {

@@ -50,23 +50,41 @@ app.get('/', function (request, response) {
 
 app.get('/admin', function (req, res) {
 
+  //dialogflow_api.createEntityType(projectId, "Adjectif", )
+
+  let trainingPhrase = [
+    "beau",
+    "moches",
+    "belles",
+    "beaux"
+  ];
+
+  let messages = [
+    "J'ai compris !!!!!!",
+    "Moi aussi bcp !!!"
+  ];
+
+  dialogflow_api.createIntent(projectId, "IntentTest", trainingPhrase, messages, "Adjectif").then( () => {
+    console.log("intent created !");
+  });
+
   clearBdd()
-  .then(() => {
+      .then(() => {
 
-    readXML()
-    .then(() => {
-      getAllUE().then((result) => {
+        readXML()
+            .then(() => {
+              getAllUE().then((result) => {
 
-        result.forEach(ue => {
-          console.log(ue.name);
-        });
-        driver.close();
-        session.close();
-        res.sendStatus(200);
+                result.forEach(ue => {
+                  //console.log(ue.name);
+                });
+                driver.close();
+                session.close();
+                res.sendStatus(200);
 
-      });
-    });
-  })
+              });
+            });
+      })
 });
 
 // listen for requests
@@ -82,11 +100,11 @@ app.post('/sendMsg', function (request, response) {
   console.log("SessionID = " + currentSession);
   detectTextIntent(projectId, currentSession, messageContent,
       projectLanguageCode)
-  .then(dialogflowResponse => {
-    var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
-    console.log("Response = " + botMessage);
-    response.send(botMessage);
-  });
+      .then(dialogflowResponse => {
+        var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
+        console.log("Response = " + botMessage);
+        response.send(botMessage);
+      });
 });
 
 function detectTextIntent(projectId, sessionId, query, languageCode) {
