@@ -16,11 +16,13 @@
     "dialogflow": "^0.7.0",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
+    "fs": "0.0.1-security",
     "memorystore": "^1.6.0",
     "neo4j-driver": "^1.7.3",
     "session-file-store": "^1.2.0",
     "structjson": "^1.0.1",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "xml2js": "^0.4.19"
   },
   "engines": {
     "node": "8.x"
