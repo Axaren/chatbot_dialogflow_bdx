@@ -1,41 +1,32 @@
-<!-- This is a static file -->
-<!-- served from your routes in server.js -->
-
-<!-- You might want to try something fancier: -->
-<!-- html/nunjucks docs: https://mozilla.github.io/nunjucks/ -->
-<!-- pug: https://pugjs.org/ -->
-<!-- haml: http://haml.info/ -->
-<!-- hbs(handlebars): http://handlebarsjs.com/ -->
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Chatbot</title>
-    <link id="favicon" rel="icon" href="https://www.u-bordeaux.fr/favicon.ico" type="image/x-icon">
-    <meta charset="utf-8">
-    <meta name="google-site-verification" content="TW66u6i0a_ow9887W1UNWgAlHQuqwsCx-PQi27Q9Td4" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+  <title>Chatbot</title>
+  <link id="favicon" rel="icon" href="https://www.u-bordeaux.fr/favicon.ico" type="image/x-icon">
+  <meta charset="utf-8">
+  <meta name="google-site-verification" content="TW66u6i0a_ow9887W1UNWgAlHQuqwsCx-PQi27Q9Td4"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/style.css">
-    
-    <!-- import the webpage's client-side javascript file -->
-    <script src="/client.js" defer></script>
-  </head>
-  <body>
+  <!-- import the webpage's stylesheet -->
+  <link rel="stylesheet" href="/style.css">
 
-    <button class="open-button" onclick="openForm()">Chat</button>
+  <!-- import the webpage's client-side javascript file -->
+  <script src="/client.js" defer></script>
+</head>
+<body>
+
+<button class="open-button" onclick="openForm()">Chat</button>
 
 <div class="chat-popup" id="myForm">
-    <h1>Chat</h1>
-    <ul id="msg-list">
-    </ul>
+  <h1>Chat</h1>
+  <ul id="msg-list">
+  </ul>
   <form class="send-container">
     <textarea placeholder="Type message.." id="current-msg" rows="1" required></textarea>
     <button type="button" class="btn" onclick="onSend()">Send</button>
     <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
   </form>
 </div>
-    
-  </body>
+
+</body>
 </html>

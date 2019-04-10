@@ -1,7 +1,13 @@
+const dialogflow = require('dialogflow');
+
+exports.createIntent = createIntent;
+exports.deleteIntent = deleteIntent;
+exports.createContext = createContext;
+exports.deleteContext = deleteContext;
+
 async function createEntityType(projectId, displayName, kind) {
   // [START dialogflow_create_entity_type]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const entityTypesClient = new dialogflow.EntityTypesClient();
@@ -27,7 +33,6 @@ async function createEntityType(projectId, displayName, kind) {
 async function deleteEntityType(projectId, entityTypeId) {
   // [START dialogflow_delete_entity_type]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const entityTypesClient = new dialogflow.EntityTypesClient();
@@ -51,7 +56,6 @@ async function deleteEntityType(projectId, entityTypeId) {
 async function createEntity(projectId, entityTypeId, entityValue, synonyms) {
   // [START dialogflow_create_entity]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const entityTypesClient = new dialogflow.EntityTypesClient();
@@ -80,7 +84,6 @@ async function createEntity(projectId, entityTypeId, entityValue, synonyms) {
 async function deleteEntity(projectId, entityTypeId, entityValue) {
   // [START dialogflow_delete_entity]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const entityTypesClient = new dialogflow.EntityTypesClient();
@@ -110,7 +113,6 @@ async function createIntent(
 ) {
   // [START dialogflow_create_intent]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates the Intent Client
   const intentsClient = new dialogflow.IntentsClient();
@@ -162,7 +164,6 @@ async function createIntent(
 async function deleteIntent(projectId, intentId) {
   // [START dialogflow_delete_intent]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const intentsClient = new dialogflow.IntentsClient();
@@ -181,7 +182,6 @@ async function deleteIntent(projectId, intentId) {
 async function createContext(projectId, sessionId, contextId, lifespanCount) {
   // [START dialogflow_create_context]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const contextsClient = new dialogflow.ContextsClient();
@@ -201,15 +201,16 @@ async function createContext(projectId, sessionId, contextId, lifespanCount) {
     },
   };
 
-  const responses = await contextsClient.createContext(createContextRequest);
-  console.log(`Created ${responses[0].name} context`);
+  const context = await contextsClient.createContext(createContextRequest);
+  console.log(`Created ${context[0].name} context`);
   // [END dialogflow_create_context]
+
+  return context;
 }
 
 async function deleteContext(projectId, sessionId, contextId) {
   // [START dialogflow_delete_context]
   // Imports the Dialogflow library
-  const dialogflow = require('dialogflow');
 
   // Instantiates clients
   const contextsClient = new dialogflow.ContextsClient();
