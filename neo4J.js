@@ -17,7 +17,9 @@ match ()-[r:isUE]->() delete r;
 
 const server = http.createServer(function (req, res) {
     if (req.url != '/favicon.ico') {
+
         clearBdd().then( () => {
+
 
             readXML().then(() => {
                 res.writeHead(200);
@@ -26,7 +28,7 @@ const server = http.createServer(function (req, res) {
                 res.end();
             });
         })
-        
+
     }
 
 });
@@ -35,10 +37,9 @@ server.listen(8080);
 
 function readXML() {
 
-    console.log(" readXML... ");
+    console.log("readXML... ");
 
     let Info = new Licence('PRLIIN_110', 'Informatique', session);
-
 
     return new Promise((resolve, reject) => {
         let description, courseID, courseName;
@@ -47,8 +48,9 @@ function readXML() {
             fs.readFile('formation_licence_info.xml', 'utf-8', function (err, buf) {
                 parseString(buf, function (err, result) {
 
+                    console.log("Nb elements : " + result.CDM['ns3:course'].length);
+
                     for (let i = 0; i < result.CDM['ns3:course'].length; i++){
-                        //console.log((((result.CDM['ns3:course'][i]['ns3:courseName'])[0]._).replace(/\n|\r/g, "")));
 
                         courseID = (((result.CDM['ns3:course'][i]['ns3:courseID'])[0]._).replace(/\n|\r/g, ""));
                         courseName = (((result.CDM['ns3:course'][i]['ns3:courseName'])[0]._).replace(/\n|\r/g, ""));
@@ -63,19 +65,25 @@ function readXML() {
 
                         ue.addBdd().then( () => {
 
-                            ue.linkTo(Info.name).then( ()=> {
+                            ue.linkTo(Info.name).then( () => {
+
+                                if (i+1 === result.CDM['ns3:course'].length){
+                                    console.log("readXML terminé !");
+                                    resolve();
+                                }
                             });
+
                         }).catch( (err) => {
                             console.log(err);
                         });
-
                     }
                 });
+
             });
-            console.log("fin de methode readXML !!");
-            resolve();
         });
     });
+
+
 
 }
 
@@ -83,25 +91,57 @@ function clearBdd(){
 
     console.log("clear...");
 
-        return new Promise( (resolve, reject) => {
-            const requestCypher = 'match ()-[r:isUE]->() delete r';
-            const requestCypher2 = 'match (a) return a';
+    return new Promise( (resolve, reject) => {
+        clearRelations().then( () => {
 
-            const resultPromise = this.session.run(requestCypher);
-
-            resultPromise.then(() => {
-
-                const resultPromise2 = this.session.run(requestCypher2);
-
-                resultPromise2.then( () => {
-                    resolve();
-                }).catch( (err) => {
-                    reject(err);
-                }) 
-
+            clearNode().then( () => {
+                resolve();
             }).catch( (err) => {
                 reject(err);
-            });
-        });
+            })
 
+        }).catch( (err) => {
+            reject(err);
+        })
+    });
+
+}
+
+function clearRelations(){
+
+    console.log("clear relations...");
+
+    return new Promise( (resolve, reject) => {
+        const requestCypher = 'match ()-[r:isUE]->() delete r';
+
+        const resultPromise = session.run(requestCypher);
+
+        resultPromise.then(() => {
+
+            console.log("clear relations terminé !");
+            resolve();
+
+        }).catch( (err) => {
+            reject(err);
+        });
+    });
+}
+
+function clearNode(){
+
+    console.log("clear node...");
+
+    return new Promise( (resolve, reject) => {
+        const requestCypher = 'match (a) delete a';
+
+        const resultPromise = session.run(requestCypher);
+
+        resultPromise.then(() => {
+            console.log("clear node terminé !");
+            resolve();
+
+        }).catch( (err) => {
+            reject(err);
+        });
+    });
 }

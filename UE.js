@@ -33,6 +33,8 @@ class UE {
 
     linkTo(licenceName){
 
+        /*console.log("Dans link de : " + this.name);*/
+
         return new Promise( (resolve, reject) => {
 
             const requestCypher = 'match (u:UE),(l:LICENCE) where u.name = "' + this.name + '" and l.name = "'+ licenceName +'" create (u)-[r:isUE]->(l) return r;';
@@ -44,7 +46,6 @@ class UE {
                 reject(err);
             });
         });
-
     }
 
 }

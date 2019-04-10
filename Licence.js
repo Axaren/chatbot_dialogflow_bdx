@@ -9,8 +9,6 @@ class Licence {
 
     addBdd(){
 
-        console.log("Dans addBdd de licence");
-
         return new Promise( (resolve, reject) => {
             const requestCypher = 'CREATE (a:LICENCE {name: $name, id: $id, link : $link}) RETURN a';
 
