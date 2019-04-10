@@ -7,11 +7,12 @@ from io import open
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
  
+print(' ')
 text = sys.argv[1]
 stop_words = set(stopwords.words('keywords'))
 words = word_tokenize(text)
  
-new_sentence = []
+new_sentence = ['zajkan']
  
 for word in words:
     if word in stop_words:
