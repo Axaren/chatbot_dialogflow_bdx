@@ -13,16 +13,20 @@ const Licence = require('./Licence');
 
 /*
 match ()-[r:isUE]->() delete r;
- */
+*/
 
 const server = http.createServer(function (req, res) {
     if (req.url != '/favicon.ico') {
-        readXML().then(() => {
-            res.writeHead(200);
-            session.close();
-            driver.close();
-            res.end();
-        });
+        clearBdd().then( () => {
+
+            readXML().then(() => {
+                res.writeHead(200);
+                session.close();
+                driver.close();
+                res.end();
+            });
+        })
+        
     }
 
 });
@@ -30,6 +34,8 @@ const server = http.createServer(function (req, res) {
 server.listen(8080);
 
 function readXML() {
+
+    console.log(" readXML... ");
 
     let Info = new Licence('PRLIIN_110', 'Informatique', session);
 
@@ -64,34 +70,38 @@ function readXML() {
                         });
 
                     }
-                    /*result.CDM['ns3:course'].forEach(element => {
-                        var courseID = (((element['ns3:courseID'])[0]._).replace(/\n|\r/g, ""));
-                        var courseName = (((element['ns3:courseName'])[0]._).replace(/\n|\r/g, ""));
-
-                        if (typeof ((element['ns3:learningObjectives'])[0]._) !== "undefined") {
-                            var description = (((element['ns3:learningObjectives'])[0]._).replace(/\n|\r/g, ""));
-                        } else {
-                            var description = courseName;
-                        }
-
-                        console.log(courseName);
-
-                        let ue = new UE(courseID, courseName, description, session);
-
-                        ue.addBdd().then( () => {
-
-                            ue.linkTo(Info.name).then( ()=> {
-                                console.log("ue fini !!");
-                            });
-                        }).catch( (err) => {
-                            console.log(err);
-                        });
-                    });*/
                 });
             });
             console.log("fin de methode readXML !!");
             resolve();
         });
     });
+
+}
+
+function clearBdd(){
+
+    console.log("clear...");
+
+        return new Promise( (resolve, reject) => {
+            const requestCypher = 'match ()-[r:isUE]->() delete r';
+            const requestCypher2 = 'match (a) return a';
+
+            const resultPromise = this.session.run(requestCypher);
+
+            resultPromise.then(() => {
+
+                const resultPromise2 = this.session.run(requestCypher2);
+
+                resultPromise2.then( () => {
+                    resolve();
+                }).catch( (err) => {
+                    reject(err);
+                }) 
+
+            }).catch( (err) => {
+                reject(err);
+            });
+        });
 
 }
