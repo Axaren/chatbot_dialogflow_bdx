@@ -1,47 +1,107 @@
+const parseString = require('xml2js').parseString;
+const fs = require('fs');
+const http = require('http');
+require('events').EventEmitter.defaultMaxListeners = 15;
+
+const neo4j = require('neo4j-driver').v1;
+const uri = 'bolt://localhost:7687';
+const driver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "chatbot"));
+const session = driver.session();
+
 const UE = require('./UE');
 const Licence = require('./Licence');
-/*const neo4j = require('neo4j-driver').v1;
-const uri = 'bolt://localhost:7687';
 
-const driver = neo4j.driver(uri, neo4j.auth.basic("neo4j", "chatbot"));
-const session = driver.session();*/
+/*
+match ()-[r:isUE]->() delete r;
+*/
 
-/*/!*const UEName = 'POO';
-const ID = '4514785';
-const Objectif = "Savoir coder en objet et faire des planète et des vaisseau pour être noté 12.5/20 (niceeeeeeeeee !!!!)";*!/
-UE.Name = 'Systeme';
-UE.ID = '4514787';
-UE.Objectif = "Connaitre les commandes de base linux";
+const server = http.createServer(function (req, res) {
+    if (req.url != '/favicon.ico') {
+        clearBdd().then( () => {
 
+            readXML().then(() => {
+                res.writeHead(200);
+                session.close();
+                driver.close();
+                res.end();
+            });
+        })
+        
+    }
 
-const requestUE = {cypher : 'CREATE (a:UE {name: $name, id: $id, objectif : $objectif}) RETURN a', param : {name: UE.Name, id : UE.ID, objectif : UE.Objectif } };
-
-
-const resultPromise = session.run(requestUE.cypher, requestUE.param);
-
-resultPromise.then(result => {
-    session.close();
-
-    const singleRecord = result.records[0];
-    const node = singleRecord.get(0);
-
-    console.log(node.properties.name);
-
-    // on application exit:
-    driver.close();
-});*/
-
-
-let Info = new Licence('PRLIIN_110', 'Informatique');
-
-let Systeme = new UE('4512457', "Systeme", "Connaitre les commandes de base linux");
-Systeme.addBdd();
-Systeme.linkTo(Info.name);
-
-const http = require('http');
-
-const server = http.createServer(function(req, res) {
-    res.writeHead(200);
-    res.end('Salut tout le monde !');
 });
+
 server.listen(8080);
+
+function readXML() {
+
+    console.log(" readXML... ");
+
+    let Info = new Licence('PRLIIN_110', 'Informatique', session);
+
+
+    return new Promise((resolve, reject) => {
+        let description, courseID, courseName;
+
+        Info.addBdd().then(() => {
+            fs.readFile('formation_licence_info.xml', 'utf-8', function (err, buf) {
+                parseString(buf, function (err, result) {
+
+                    for (let i = 0; i < result.CDM['ns3:course'].length; i++){
+                        //console.log((((result.CDM['ns3:course'][i]['ns3:courseName'])[0]._).replace(/\n|\r/g, "")));
+
+                        courseID = (((result.CDM['ns3:course'][i]['ns3:courseID'])[0]._).replace(/\n|\r/g, ""));
+                        courseName = (((result.CDM['ns3:course'][i]['ns3:courseName'])[0]._).replace(/\n|\r/g, ""));
+
+                        if (typeof ((result.CDM['ns3:course'][i]['ns3:learningObjectives'])[0]._) !== "undefined") {
+                            description = (((result.CDM['ns3:course'][i]['ns3:learningObjectives'])[0]._).replace(/\n|\r/g, ""));
+                        } else {
+                            description = courseName;
+                        }
+
+                        let ue = new UE(courseID, courseName, description, session);
+
+                        ue.addBdd().then( () => {
+
+                            ue.linkTo(Info.name).then( ()=> {
+                            });
+                        }).catch( (err) => {
+                            console.log(err);
+                        });
+
+                    }
+                });
+            });
+            console.log("fin de methode readXML !!");
+            resolve();
+        });
+    });
+
+}
+
+function clearBdd(){
+
+    console.log("clear...");
+
+        return new Promise( (resolve, reject) => {
+            const requestCypher = 'match ()-[r:isUE]->() delete r';
+            const requestCypher2 = 'match (a) return a';
+
+            const resultPromise = this.session.run(requestCypher);
+
+            resultPromise.then(() => {
+
+                const resultPromise2 = this.session.run(requestCypher2);
+
+                resultPromise2.then( () => {
+                    resolve();
+                }).catch( (err) => {
+                    reject(err);
+                }) 
+
+            }).catch( (err) => {
+                reject(err);
+            });
+        });
+
+}
