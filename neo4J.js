@@ -10,41 +10,159 @@ const session = driver.session();
 
 const UE = require('./UE');
 const Licence = require('./Licence');
+const Semestre = require('./Semestre');
 
 /*
 match ()-[r:isUE]->() delete r;
 */
 
 const server = http.createServer(function (req, res) {
+
     if (req.url != '/favicon.ico') {
 
-        /*clearBdd().then( () => {
+        clearBdd().then( () => {
 
 
             readXML().then(() => {
                 res.writeHead(200);
+
+
                 session.close();
                 driver.close();
                 res.end();
             });
-        })*/
-
-        res.writeHead(200);
-        getAllUE().then( (result) => {
-
-            result.forEach( ue => {
-                console.log(ue.name);
-            })
-
-        });
-
+        })
     }
 
 });
 
 server.listen(8080);
 
-function readXML() {
+function readXML () {
+
+    console.log("readXML... ");
+
+    return new Promise((resolve, reject) => {
+
+        let Info = new Licence('PRLIIN_110', 'Informatique', session);
+
+        if (typeof process.argv[2] === "undefined") {
+            console.log("AIDE: node parser.js {fichier XML à parser}");
+        }
+        else {
+
+            var keywords = [];
+            fs.readFile('keywords', 'utf-8', function (err, buf) {
+                if (err) throw err;
+                var lineReader = require('readline').createInterface({ input: require('fs').createReadStream('keywords') });
+                lineReader.on('line', function (line) {
+                    keywords.push(line);
+                });
+            });
+
+            Info.addBdd().then( () => {
+
+                fs.readFile(process.argv[2], 'utf-8', function (err, buf) {
+                    var j=0;
+
+                    if (err) throw err;
+                    parseString(buf, function (err, result) {
+                        (result.CDM['ns3:program']).forEach( (program, index) => {
+                            var nature = (program["ns2:programDescription"])[0].$.nature;
+                            if (nature === "semestre") {
+                                (((program["ns2:programStructure"])[0])['ns2:refProgram']).forEach(id => {
+                                    var name = ((((program['ns2:programName'])[0])['ns2:text'])[0]._); // name = semestre
+                                    if ((name.toUpperCase().includes("SEMESTRE 5"))||(name.toUpperCase().includes("SEMESTRE 6"))) {
+                                        (result.CDM['ns3:program']).forEach(program => {
+                                            if ((program["ns3:programID"])[0]._ === id.$.ref) {
+                                                program['ns2:programStructure'].forEach(structure => {
+                                                    structure['ns2:refCourse'].forEach(courseID => {
+                                                        var courseIDTmp = courseID.$.ref;
+                                                        result.CDM['ns3:course'].forEach( (element, index2) => {
+                                                            if (((element['ns3:courseID'])[0]._) === courseIDTmp) {
+                                                                var courseName = (((element['ns3:courseName'])[0]._).replace(/\n|\r/g, ""));
+                                                                if (typeof ((element['ns3:learningObjectives'])[0]._) !== "undefined") {
+                                                                    var description = (((element['ns3:learningObjectives'])[0]._));
+                                                                    description = description.replace(".", " ");
+                                                                    var splitDescription = description.split(' ');
+                                                                    var keywordsFound = [];
+                                                                    keywords.forEach(keyword => {
+                                                                        for (var i = 0; i < splitDescription.length; i++) {
+                                                                            if (splitDescription[i].includes("'")) {
+                                                                                splitDescription[i] = splitDescription[i].substr(splitDescription[i].indexOf("'"), splitDescription[i].length);
+                                                                                splitDescription[i] = splitDescription[i].replace("'", "");
+                                                                            }
+                                                                            if (splitDescription[i].toUpperCase() === keyword.toUpperCase() && keywordsFound.indexOf(keyword) === -1) {
+                                                                                keywordsFound.push(splitDescription[i]);
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }
+                                                                else {
+                                                                    var description = courseName;
+                                                                }
+
+                                                                //console.log(courseName + "[ id : " + courseIDTmp + " ,description : " + description + " ]");
+
+
+                                                                let semestre = new Semestre(name, session);
+                                                                let ue = new UE(courseIDTmp, courseName, description, session);
+
+                                                                console.log(index+1);
+                                                                console.log(index2+1);
+
+                                                                semestre.addBdd().then( () => {
+                                                                    semestre.linkTo(Info.name).then( () => {
+
+                                                                        ue.addBdd().then( () => {
+
+                                                                            ue.linkTo(semestre.name).then( () => {
+
+
+
+                                                                                //console.log("index 1 : " + (result.CDM['ns3:program'].length)-1);
+                                                                                //console.log("index 2 : " + result.CDM['ns3:course'].length);
+                                                                                /*if (index+1 === result.CDM['ns3:program'].length)
+                                                                                    console.log("index1 = taille !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");*/
+
+                                                                                if (index2+1 === result.CDM['ns3:course'].length){
+                                                                                    console.log("Fin readXML !!");
+                                                                                    resolve();
+                                                                                }
+
+                                                                                /*if (index+1 === result.CDM['ns3:program'].length && index2+1 === result.CDM['ns3:course'].length){
+                                                                                    console.log("Fin readXML !!");
+                                                                                    resolve();
+                                                                                }*/
+                                                                            });
+
+                                                                        }).catch( (err) => {
+                                                                            console.log(err);
+                                                                        });
+                                                                    })
+                                                                });
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+
+            });
+
+
+        }
+
+    });
+}
+
+function readXML2() {
 
     console.log("readXML... ");
 
@@ -118,7 +236,25 @@ function clearBdd(){
 
 function clearRelations(){
 
-    console.log("clear relations...");
+    return new Promise( (resolve, reject) => {
+
+        clearUERelation().then( () => {
+            clearSemestreRelation().then( () => {
+                resolve();
+            }).catch( (err) => {
+                reject(err);
+            })
+        }).catch( (err) => {
+            reject(err);
+        })
+    })
+
+
+}
+
+function clearUERelation(){
+
+    console.log("clear UE relations...");
 
     return new Promise( (resolve, reject) => {
         const requestCypher = 'match ()-[r:isUE]->() delete r';
@@ -127,7 +263,27 @@ function clearRelations(){
 
         resultPromise.then(() => {
 
-            console.log("clear relations terminé !");
+            console.log("clear UE relations terminé !");
+            resolve();
+
+        }).catch( (err) => {
+            reject(err);
+        });
+    });
+}
+
+function clearSemestreRelation(){
+
+    console.log("clear Semestre relations...");
+
+    return new Promise( (resolve, reject) => {
+        const requestCypher = 'match ()-[r:isSEMESTRE]->() delete r';
+
+        const resultPromise = session.run(requestCypher);
+
+        resultPromise.then(() => {
+
+            console.log("clear Semestre relations terminé !");
             resolve();
 
         }).catch( (err) => {

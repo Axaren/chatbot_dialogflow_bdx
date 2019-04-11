@@ -1,23 +1,18 @@
-class UE {
+class Semestre {
 
-    constructor(id, name, obj, session){
-        this.ID = id;
+    constructor(name, session){
         this.name = name;
-        this.objectifs = obj;
         this.session = session;
     }
 
     addBdd(){
 
         return new Promise( (resolve, reject) => {
-
-            const requestCypher = 'CREATE (a:UE {name: $name, id: $id, objectifs : $objectifs}) RETURN a';
+            const requestCypher = 'MERGE (s:SEMESTRE {name: $name}) RETURN s';
 
             const resultPromise = this.session.run(requestCypher,
                 {
-                    id : this.ID,
                     name : this.name,
-                    objectifs : this.objectifs
                 }
             );
 
@@ -31,13 +26,11 @@ class UE {
 
     }
 
-    linkTo(semestreName){
-
-        /*console.log("Dans link de : " + this.name);*/
+    linkTo(licenceName){
 
         return new Promise( (resolve, reject) => {
 
-            const requestCypher = 'match (u:UE),(s:SEMESTRE) where u.name = "' + this.name + '" and s.name = "'+ semestreName +'" merge (u)-[r:isUE]->(s) return r;';
+            const requestCypher = 'match (s:SEMESTRE),(l:LICENCE) where s.name = "' + this.name + '" and l.name = "'+ licenceName +'" merge (s)-[r:isSEMESTRE]->(l) return r;';
             const resultPromise = this.session.run(requestCypher);
 
             resultPromise.then(() => {
@@ -46,7 +39,8 @@ class UE {
                 reject(err);
             });
         });
+
     }
 
 }
-module.exports = UE;
+module.exports = Semestre;
