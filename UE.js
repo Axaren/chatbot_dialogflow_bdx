@@ -1,9 +1,10 @@
 class UE {
 
-    constructor(id, name, obj, session){
+    constructor(id, name, obj, keywords, session){
         this.ID = id;
         this.name = name;
         this.objectifs = obj;
+        this.keywords = keywords;
         this.session = session;
     }
 
@@ -11,13 +12,14 @@ class UE {
 
         return new Promise( (resolve, reject) => {
 
-            const requestCypher = 'CREATE (a:UE {name: $name, id: $id, objectifs : $objectifs}) RETURN a';
+            const requestCypher = 'CREATE (a:UE {name: $name, id: $id, objectifs : $objectifs, keywords : $keywords}) RETURN a';
 
             const resultPromise = this.session.run(requestCypher,
                 {
                     id : this.ID,
                     name : this.name,
-                    objectifs : this.objectifs
+                    objectifs : this.objectifs,
+                    keywords : this.keywords
                 }
             );
 

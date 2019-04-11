@@ -102,14 +102,17 @@ function readXML () {
                                                                     var description = courseName;
                                                                 }
 
-                                                                //console.log(courseName + "[ id : " + courseIDTmp + " ,description : " + description + " ]");
+                                                                console.log(courseName);
+                                                                console.log(keywordsFound);
+                                                                console.log("\n");
 
 
                                                                 let semestre = new Semestre(name, session);
-                                                                let ue = new UE(courseIDTmp, courseName, description, session);
-
-                                                                console.log(index+1);
-                                                                console.log(index2+1);
+                                                                let ue;
+                                                                if (keywordsFound !== undefined)
+                                                                    ue = new UE(courseIDTmp, courseName, description, keywordsFound, session);
+                                                                else
+                                                                    ue = new UE(courseIDTmp, courseName, description, courseName, session);
 
                                                                 semestre.addBdd().then( () => {
                                                                     semestre.linkTo(Info.name).then( () => {
@@ -118,22 +121,10 @@ function readXML () {
 
                                                                             ue.linkTo(semestre.name).then( () => {
 
-
-
-                                                                                //console.log("index 1 : " + (result.CDM['ns3:program'].length)-1);
-                                                                                //console.log("index 2 : " + result.CDM['ns3:course'].length);
-                                                                                /*if (index+1 === result.CDM['ns3:program'].length)
-                                                                                    console.log("index1 = taille !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");*/
-
                                                                                 if (index2+1 === result.CDM['ns3:course'].length){
                                                                                     console.log("Fin readXML !!");
                                                                                     resolve();
                                                                                 }
-
-                                                                                /*if (index+1 === result.CDM['ns3:program'].length && index2+1 === result.CDM['ns3:course'].length){
-                                                                                    console.log("Fin readXML !!");
-                                                                                    resolve();
-                                                                                }*/
                                                                             });
 
                                                                         }).catch( (err) => {
