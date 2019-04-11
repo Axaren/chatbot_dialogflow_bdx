@@ -49,23 +49,13 @@ app.get('/', function (request, response) {
 });
 
 app.get('/admin', function (req, res) {
-
-  clearBdd()
+  initChatbot()
   .then(() => {
-
-    readXML()
-    .then(() => {
-      getAllUE().then((result) => {
-
-        result.forEach(ue => {
-          console.log(ue.name);
-        });
-        driver.close();
-        session.close();
-        res.sendStatus(200);
-
-      });
-    });
+    res.sendStatus(200);
+  })
+  .catch((err) => {
+    console.log(err);
+    res.sendStatus(500);
   })
 });
 
@@ -80,8 +70,7 @@ app.post('/sendMsg', function (request, response) {
   const messageContent = request.body.message;
   let currentSession = request.sessionID;
   console.log("SessionID = " + currentSession);
-  detectTextIntent(projectId, currentSession, messageContent,
-      projectLanguageCode)
+  detectTextIntent(projectId, currentSession, messageContent, projectLanguageCode)
   .then(dialogflowResponse => {
     var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
     console.log("Response = " + botMessage);
@@ -150,6 +139,15 @@ function detectTextIntent(projectId, sessionId, query, languageCode) {
 
   // [END dialogflow_detect_intent_text]
 
+}
+
+async function initChatbot() {
+  await clearBdd();
+  await readXML();
+  let result = await getAllUE();
+  result.forEach((res) => console.log(res));
+  driver.close();
+  session.close();
 }
 
 function readXML() {
@@ -265,7 +263,7 @@ function clearNode() {
   });
 }
 
-function getAllUE() {
+async function getAllUE() {
 
   let tabUE = [];
 
@@ -289,5 +287,16 @@ function getAllUE() {
       reject(err);
     });
   });
+}
+
+async function generateTrainingPhrases() {
+  var trainingPhrasesTemplates = [
+    "Je veux faire $KEYWORD",
+    "J'aimerais faire $KEYWORD",
+    "Jvoudrais étudier $KEYWORD"
+  ];
+
+
+
 }
 
