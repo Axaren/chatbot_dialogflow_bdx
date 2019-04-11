@@ -245,15 +245,9 @@ function readXML() {
 
                                       let semestre = new Semestre(name,
                                           session);
-                                      let ue;
-                                      if (keywordsFound !== undefined) {
-                                        ue = new UE(courseIDTmp, courseName,
-                                            description, keywordsFound,
-                                            session);
-                                      } else {
-                                        ue = new UE(courseIDTmp, courseName,
-                                            description, courseName, session);
-                                      }
+                                      let ue = new UE(courseIDTmp, courseName,
+                                          description, keywordsFound,
+                                          session);
 
                                       semestre.addBdd().then(() => {
                                         semestre.linkTo(Info.name).then(() => {

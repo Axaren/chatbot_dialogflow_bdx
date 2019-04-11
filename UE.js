@@ -5,6 +5,8 @@ class UE {
         this.name = name;
         this.objectifs = obj;
         this.keywords = keywords;
+        if (!this.keywords)
+            this.keywords = [];
         this.session = session;
     }
 
