@@ -64,6 +64,7 @@ var server = http.createServer(function (req, res) {
                                                         else {
                                                             var description = courseName;
                                                         }
+
                                                         if (typeof keywordsFound === "undefined")
                                                             console.log(++j+"." +courseName + " [PAS DE DESCRIPTION]");
                                                         else if (keywordsFound.length>=1)
