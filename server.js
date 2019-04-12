@@ -27,8 +27,7 @@ const Semestre = require('./Semestre');
 const projectLanguageCode = 'fr-FR';
 const projectId = 'formation-bdx';
 const info_base_url = 'https://www.u-bordeaux.fr/formation/2018/PRLIIN_110/informatique/enseignement/';
-// Instantiates a session client
-const sessionClient = new dialogflow.SessionsClient();
+const GOOGLE_CLOUD_AUTH_FILE = "auth_file.json";
 
 app.use(expressSession({
       store: new FileStore("./.sessions/"),
@@ -86,7 +85,7 @@ function detectTextIntent(projectId, sessionId, query, languageCode) {
 
   // Instantiates a session client
   const sessionClient = new dialogflow.SessionsClient(
-      {keyFilename: "auth_file.json"});
+      {keyFilename: GOOGLE_CLOUD_AUTH_FILE});
 
   if (!query) {
     return;
@@ -148,9 +147,10 @@ async function initChatbot() {
   await clearBdd();
   await readXML();
   let ueList = await getAllUE();
+  await generateEntityType(ueList);
   for (let ue of ueList) {
     let trainingPhrases = await generateTrainingPhrases(ue);
-    console.log(trainingPhrases);
+    console.log(JSON.stringify(trainingPhrases));
   }
 
   driver.close();
@@ -245,7 +245,7 @@ function readXML() {
 
                                       let semestre = new Semestre(name,
                                           session);
-                                      let ue = new UE(courseIDTmp, courseName,
+                                      let ue = new UE(courseIDTmp, courseName.replace(/ *\([^)]*\) */g, ""),
                                           description, keywordsFound,
                                           session);
 
@@ -410,31 +410,64 @@ function getAllUE() {
   });
 }
 
-async function generateTrainingPhrases(UE) {
+async function generateTrainingPhrases(UE, entityType) {
   console.log("Generating training phrases for " + UE.name + ":" + UE.id);
-  var trainingPhrasesTemplates = [
+  const trainingPhrasesTemplates = [
     "Je veux faire $KEYWORD",
     "J'aimerais faire $KEYWORD",
-    "Jvoudrais étudier $KEYWORD"
+    "Jvoudrais étudier $KEYWORD",
+    "Je veux faire $KEYWORD pendant mes études"
   ];
 
   let trainingPhrases = [];
-
-  trainingPhrasesTemplates.forEach((phrase) => {
-    if (UE.keywords && UE.keywords.length) {
-      console.log(UE.keywords);
-      for (let keyword of UE.keywords) {
-        if (keyword) {
-          trainingPhrases.push(phrase.replace("$KEYWORD", keyword))
-        }
-      }
-    } else {
-      trainingPhrases.push(phrase.replace("$KEYWORD", UE.name));
+  for(let phraseTemplate of trainingPhrasesTemplates) {
+    let splittedPhrase = phraseTemplate.split("$KEYWORD");
+    let trainingPhraseParts = [];
+    for (let split of splittedPhrase) {
+      trainingPhraseParts.push({text: split});
     }
-  });
+    trainingPhraseParts.splice(1,0,{
+      text: UE.name,
+      entityType: entityType,
+      alias: entityType,
+      userDefined: true
+    });
+    let trainingPhrase = {
+      type: 'EXAMPLE',
+      parts: trainingPhraseParts
+    };
+    trainingPhrases.push(trainingPhrase);
+  }
 
   console.log("Generated training phrases");
   return trainingPhrases;
 
+}
+
+async function generateEntityType(UEList) {
+  let entities = [];
+  for (let UE of UEList) {
+    let synonyms = UE.keywords;
+    if (!synonyms)
+      synonyms = [];
+    synonyms.push(UE.name);
+    let entity = {
+      value: UE.name,
+      synonyms: synonyms
+    };
+    entities.push(entity);
+  }
+  let entityType = {
+    displayName: "UE",
+    kind: "KIND_MAP",
+    autoExpansionMode: "AUTO_EXPANSION_MODE_UNSPECIFIED",
+    entities: entities
+  };
+
+  //let entityTypeId = "projects/"+ projectId + "/agent/entityTypes/" + entityType.displayName;
+
+  await dialogflow_api.listEntityTypes(projectId);
+  //dialogflow_api.deleteEntityType(projectId,entityTypeId);
+  await dialogflow_api.createEntityType(projectId, entityType);
 }
 
