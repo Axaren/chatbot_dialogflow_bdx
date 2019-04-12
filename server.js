@@ -73,11 +73,11 @@ app.post('/sendMsg', function (request, response) {
   console.log("SessionID = " + currentSession);
   detectTextIntent(projectId, currentSession, messageContent,
       projectLanguageCode)
-  .then(dialogflowResponse => {
-    var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
-    console.log("Response = " + botMessage);
-    response.send(botMessage);
-  });
+      .then(dialogflowResponse => {
+        var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
+        console.log("Response = " + botMessage);
+        response.send(botMessage);
+      });
 });
 
 function detectTextIntent(projectId, sessionId, query, languageCode) {
@@ -148,10 +148,13 @@ async function initChatbot() {
   await readXML();
   let ueList = await getAllUE();
   await generateEntityType(ueList);
+  let trainingPhrases = [];
   for (let ue of ueList) {
-    let trainingPhrases = await generateTrainingPhrases(ue);
-    console.log(JSON.stringify(trainingPhrases));
+    let UETrainingPhrases = await generateTrainingPhrases(ue);
+    trainingPhrases.push(UETrainingPhrases);
   }
+  await createFormationIntent(trainingPhrases);
+
 
   driver.close();
   session.close();
@@ -161,129 +164,115 @@ function readXML() {
 
   console.log("readXML... ");
 
+  let Info = new Licence('PRLIIN_110', 'Informatique', session);
+
   return new Promise((resolve, reject) => {
 
-    let Info = new Licence('PRLIIN_110', 'Informatique', session);
+    /*if (typeof process.argv[2] === "undefined") {
+      console.log("AIDE: node parser.js {fichier XML à parser}");
+    }
+    else {*/
 
-    var keywords = [];
-    fs.readFile('keywords', 'utf-8', function (err, buf) {
-      if (err) {
-        throw err;
-      }
-      var lineReader = require('readline').createInterface(
-          {input: require('fs').createReadStream('keywords')});
-      lineReader.on('line', function (line) {
-        keywords.push(line);
-      });
-    });
+      Info.addBdd().then( () => {
 
-    Info.addBdd().then(() => {
-
-      fs.readFile('formation_licence_info.xml', 'utf-8', function (err, buf) {
-        var j = 0;
-
-        if (err) {
-          throw err;
-        }
-        parseString(buf, function (err, result) {
-          (result.CDM['ns3:program']).forEach((program, index) => {
-            var nature = (program["ns2:programDescription"])[0].$.nature;
-            if (nature === "semestre") {
-              (((program["ns2:programStructure"])[0])['ns2:refProgram']).forEach(
-                  id => {
-                    var name = ((((program['ns2:programName'])[0])['ns2:text'])[0]._); // name = semestre
-                    if ((name.toUpperCase().includes("SEMESTRE 5"))
-                        || (name.toUpperCase().includes("SEMESTRE 6"))) {
-                      (result.CDM['ns3:program']).forEach(program => {
-                        if ((program["ns3:programID"])[0]._ === id.$.ref) {
-                          program['ns2:programStructure'].forEach(structure => {
-                            structure['ns2:refCourse'].forEach(courseID => {
-                              var courseIDTmp = courseID.$.ref;
-                              result.CDM['ns3:course'].forEach(
-                                  (element, index2) => {
-                                    if (((element['ns3:courseID'])[0]._)
-                                        === courseIDTmp) {
-                                      var courseName = (((element['ns3:courseName'])[0]._).replace(
-                                          /\n|\r/g, ""));
-                                      if (typeof ((element['ns3:learningObjectives'])[0]._)
-                                          !== "undefined") {
-                                        var description = (((element['ns3:learningObjectives'])[0]._));
-                                        description = description.replace(".",
-                                            " ");
-                                        var splitDescription = description.split(
-                                            ' ');
-                                        var keywordsFound = [];
-                                        keywords.forEach(keyword => {
-                                          for (var i = 0;
-                                              i < splitDescription.length;
-                                              i++) {
-                                            if (splitDescription[i].includes(
-                                                "'")) {
-                                              splitDescription[i] = splitDescription[i].substr(
-                                                  splitDescription[i].indexOf(
-                                                      "'"),
-                                                  splitDescription[i].length);
-                                              splitDescription[i] = splitDescription[i].replace(
-                                                  "'", "");
-                                            }
-                                            if (splitDescription[i].toUpperCase()
-                                                === keyword.toUpperCase()
-                                                && keywordsFound.indexOf(
-                                                    keyword) === -1) {
-                                              keywordsFound.push(
-                                                  splitDescription[i]);
-                                            }
-                                          }
-                                        });
-                                      } else {
-                                        description = courseName;
-                                      }
-
-                                      console.log(courseName);
-                                      console.log(keywordsFound);
-                                      console.log("\n");
-
-                                      let semestre = new Semestre(name,
-                                          session);
-                                      let ue = new UE(courseIDTmp, courseName.replace(/ *\([^)]*\) */g, ""),
-                                          description, keywordsFound,
-                                          session);
-
-                                      semestre.addBdd().then(() => {
-                                        semestre.linkTo(Info.name).then(() => {
-
-                                          ue.addBdd().then(() => {
-
-                                            ue.linkTo(semestre.name).then(
-                                                () => {
-
-                                                  if (index2 + 1
-                                                      === result.CDM['ns3:course'].length) {
-                                                    console.log(
-                                                        "Fin readXML !!");
-                                                    resolve();
-                                                  }
-                                                });
-
-                                          }).catch((err) => {
-                                            console.log(err);
-                                          });
-                                        })
-                                      });
-                                    }
-                                  });
-                            });
-                          });
-                        }
-                      });
-                    }
-                  });
-            }
+        var keywords = [];
+        fs.readFile('keywords', 'utf-8', function (err, buf) {
+          if (err) throw err;
+          var lineReader = require('readline').createInterface({ input: require('fs').createReadStream('keywords') });
+          lineReader.on('line', function (line) {
+            keywords.push(line);
           });
         });
-      });
 
-    });
+        fs.readFile("formation_licence_info.xml", 'utf-8', function (err, buf) {
+          var j=0;
+
+          if (err) throw err;
+          parseString(buf, function (err, result) {
+            (result.CDM['ns3:program']).forEach(program => {
+              var nature = (program["ns2:programDescription"])[0].$.nature;
+              if (nature === "semestre") {
+                (((program["ns2:programStructure"])[0])['ns2:refProgram']).forEach(id => {
+                  var name = ((((program['ns2:programName'])[0])['ns2:text'])[0]._);
+                  if ((name.toUpperCase().includes("SEMESTRE 5"))||(name.toUpperCase().includes("SEMESTRE 6"))) {
+                    (result.CDM['ns3:program']).forEach(program => {
+                      if ((program["ns3:programID"])[0]._ === id.$.ref) {
+                        program['ns2:programStructure'].forEach(structure => {
+                          structure['ns2:refCourse'].forEach(courseID => {
+                            var courseIDTmp = courseID.$.ref;
+                            result.CDM['ns3:course'].forEach( (element, index) => {
+                              if (((element['ns3:courseID'])[0]._) === courseIDTmp) {
+                                var courseName = (((element['ns3:courseName'])[0]._).replace(/\n|\r/g, ""));
+                                if (typeof ((element['ns3:learningObjectives'])[0]._) !== "undefined") {
+                                  var description = (((element['ns3:learningObjectives'])[0]._));
+                                  description = description.replace(".", " ");
+                                  var splitDescription = description.split(' ');
+                                  var keywordsFound = [];
+                                  keywords.forEach(keyword => {
+                                    if (keyword.split(' ').length<=1){
+                                      for (var i = 0; i < splitDescription.length; i++) {
+                                        if (splitDescription[i].includes("'")) {
+                                          splitDescription[i] = splitDescription[i].substr(splitDescription[i].indexOf("'"), splitDescription[i].length);
+                                          splitDescription[i] = splitDescription[i].replace("'", "");
+                                        }
+                                        if (splitDescription[i].toUpperCase() === keyword.toUpperCase() && keywordsFound.indexOf(keyword) === -1) {
+                                          keywordsFound.push(splitDescription[i]);
+                                        }
+                                      }
+
+                                    }
+                                    else{
+                                      if (description.toUpperCase().includes(keyword.toUpperCase()) && keywordsFound.indexOf(keyword) === -1) {
+                                        keywordsFound.push(keyword);
+                                      }
+                                    }
+                                  });
+                                }
+                                else {
+                                   description = courseName;
+                                }
+
+                                let semestre = new Semestre(name,
+                                    session);
+                                let ue = new UE(courseIDTmp, courseName,
+                                    description, keywordsFound,
+                                    session);
+
+                                semestre.addBdd().then(() => {
+                                  semestre.linkTo(Info.name).then(() => {
+
+                                    ue.addBdd().then(() => {
+
+                                      ue.linkTo(semestre.name).then(
+                                          () => {
+
+                                            if (index + 1 === result.CDM['ns3:course'].length) {
+                                              console.log("Fin readXML !!");
+                                              resolve();
+                                            }
+                                          });
+
+                                    }).catch((err) => {
+                                      console.log(err);
+                                    });
+                                  })
+                                });
+                              }
+                            });
+                          });
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          });
+        });
+
+      })
+
+    //}
 
   });
 }
@@ -464,10 +453,39 @@ async function generateEntityType(UEList) {
     entities: entities
   };
 
-  //let entityTypeId = "projects/"+ projectId + "/agent/entityTypes/" + entityType.displayName;
 
-  await dialogflow_api.listEntityTypes(projectId);
-  //dialogflow_api.deleteEntityType(projectId,entityTypeId);
+  let entityTypeId = "";
+  let entityTypes = await dialogflow_api.listEntityTypes(projectId);
+  entityTypes.forEach((entityT) => {
+    if (entityT.displayName === "UE") {
+      entityTypeId = entityT.name;
+    }
+  });
+  //try {
+    //await dialogflow_api.deleteEntityType(projectId,entityTypeId);
+  //}
+  //catch (e) {
+    //console.log(e);
+    //await dialogflow_api.createEntityType(projectId, entityType);
+  //}
   await dialogflow_api.createEntityType(projectId, entityType);
+}
+
+async function createFormationIntent(trainingPhrases) {
+  let entityType = "UE";
+  let intent = {
+    displayName: "Requete_Formation",
+    isFallback: false,
+    trainingPhrases: trainingPhrases,
+    messages: [{text: {text: ["$UE"]}}],
+    parameters: [{
+      displayName: entityType,
+      entityTypeDisplayName: "@" + entityType,
+      value: "$" + entityType
+    }]
+
+  };
+
+  await dialogflow_api.createIntent(projectId, intent);
 }
 

@@ -2,6 +2,7 @@ class UE {
 
     constructor(id, name, obj, keywords, session){
         this.ID = id;
+        name = name.replace(/ *\([^)]*\) */g, "");
         this.name = name;
         this.objectifs = obj;
         this.keywords = keywords;
@@ -47,6 +48,40 @@ class UE {
             resultPromise.then(() => {
                 resolve();
             }).catch( (err) => {
+                reject(err);
+            });
+        });
+    }
+
+    getSemestre(){
+
+        return new Promise((resolve, reject) => {
+            const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE) where u.id = "' + this.ID + '" return s';
+
+            const resultPromise = this.session.run(requestCypher);
+
+            resultPromise.then((result) => {
+
+                resolve(result);
+
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    getLicence(){
+
+        return new Promise((resolve, reject) => {
+            const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE)-[r2:isSEMESTRE]->(l:LICENCE) where u.id = "' + this.ID + '" return l';
+
+            const resultPromise = this.session.run(requestCypher);
+
+            resultPromise.then((result) => {
+
+                resolve(result);
+
+            }).catch((err) => {
                 reject(err);
             });
         });

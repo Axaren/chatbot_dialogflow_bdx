@@ -135,7 +135,7 @@ async function deleteEntity(projectId, entityTypeId, entityValue) {
   // [END dialogflow_delete_entity]
 }
 
-async function createIntent(projectId, displayName, trainingPhrases, messageTexts, entityType) {
+async function createIntent(projectId, intent) {
   // [START dialogflow_create_intent]
   // Imports the Dialogflow library
 
@@ -144,43 +144,6 @@ async function createIntent(projectId, displayName, trainingPhrases, messageText
 
   // The path to identify the agent that owns the created intent.
   const agentPath = intentsClient.projectAgentPath(projectId);
-
-  trainingPhrasesParts.forEach(trainingPhrasesPart => {
-
-    const part = {
-      text: trainingPhrasesPart,
-      entityType: '@'+entityType,
-    };
-
-    // Here we create a new training phrase for each provided part.
-    const trainingPhrase = {
-      type: 'EXAMPLE',
-      parts: [part],
-    };
-
-    trainingPhrases.push(trainingPhrase);
-  });
-
-  const messageText = {
-    text: messageTexts,
-  };
-
-  const message = {
-    text: messageText,
-  };
-
-  let parameterId = "detected_ue";
-
-  const intent = {
-    displayName: displayName,
-    trainingPhrases: trainingPhrases,
-    messages: [message],
-    parameters: [{
-      name : entityType,
-      displayName: entityType,
-      entityTypeDisplayName: "@" + entityType,
-    }]
-  };
 
   const createIntentRequest = {
     parent: agentPath,

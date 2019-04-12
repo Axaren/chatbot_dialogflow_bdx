@@ -1,0 +1,24 @@
+<CDM xmlns="http://cdm-fr.fr/2012/CDM" xmlns:ns3="http://cdm-fr.fr/2012/CDM" xmlns:ns2="http://cdm-fr.fr/2012/CDM-frSchema">
+<ns3:program>
+<ns3:programID></ns3:programID>
+<ns2:programDescription/>
+<ns2:programName>
+<ns2:text></ns2:text>
+</ns2:programName>
+<ns3:programStructure>
+<ns2:refProgram/>
+</ns3:programStructure>
+</ns3:program>
+<ns3:program>
+<ns3:programID></ns3:programID>
+<ns2:programDescription/>
+<ns3:programStructure>
+<ns2:refCourse/>
+</ns3:programStructure>
+</ns3:program>	
+<ns3:course>
+<ns3:courseID></ns3:courseID>
+<ns3:courseName></ns3:courseName>
+<ns3:learningObjectives></ns3:learningObjectives>
+</ns3:course>
+</CDM>
