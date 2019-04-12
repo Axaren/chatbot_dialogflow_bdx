@@ -52,13 +52,13 @@ app.get('/', function (request, response) {
 
 app.get('/admin', function (req, res) {
   initChatbot()
-  .then(() => {
-    res.sendStatus(200);
-  })
-  .catch((err) => {
-    console.log(err);
-    res.sendStatus(500);
-  })
+      .then(() => {
+        res.sendStatus(200);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.sendStatus(500);
+      })
 });
 
 // listen for requests
@@ -74,11 +74,11 @@ app.post('/sendMsg', function (request, response) {
   console.log("SessionID = " + currentSession);
   detectTextIntent(projectId, currentSession, messageContent,
       projectLanguageCode)
-  .then(dialogflowResponse => {
-    var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
-    console.log("Response = " + botMessage);
-    response.send(botMessage);
-  });
+      .then(dialogflowResponse => {
+        var botMessage = dialogflowResponse[0].queryResult.fulfillmentMessages[0].text.text[0];
+        console.log("Response = " + botMessage);
+        response.send(botMessage);
+      });
 });
 
 function detectTextIntent(projectId, sessionId, query, languageCode) {
@@ -215,8 +215,8 @@ function readXML() {
                                         var keywordsFound = [];
                                         keywords.forEach(keyword => {
                                           for (var i = 0;
-                                              i < splitDescription.length;
-                                              i++) {
+                                               i < splitDescription.length;
+                                               i++) {
                                             if (splitDescription[i].includes(
                                                 "'")) {
                                               splitDescription[i] = splitDescription[i].substr(
@@ -404,6 +404,40 @@ function getAllUE() {
           resolve(tabUE);
         }
       }
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+function getUesSemestre(id){
+
+  return new Promise((resolve, reject) => {
+    const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE) where u.id = "' + id + '" return s';
+
+    const resultPromise = session.run(requestCypher);
+
+    resultPromise.then((result) => {
+
+      resolve(result);
+
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+function getUesLicence(id){
+
+  return new Promise((resolve, reject) => {
+    const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE)-[r2:isSEMESTRE]->(l:LICENCE) where u.id = "' + id + '" return l';
+
+    const resultPromise = session.run(requestCypher);
+
+    resultPromise.then((result) => {
+
+      resolve(result);
+
     }).catch((err) => {
       reject(err);
     });
