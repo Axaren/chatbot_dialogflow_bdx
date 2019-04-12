@@ -26,7 +26,7 @@ var server = http.createServer(function (req, res) {
                     var nature = (program["ns2:programDescription"])[0].$.nature;
                     if (nature === "semestre") {
                         (((program["ns2:programStructure"])[0])['ns2:refProgram']).forEach(id => {
-                            var name = ((((program['ns2:programName'])[0])['ns2:text'])[0]._); // name = semestre
+                            var name = ((((program['ns2:programName'])[0])['ns2:text'])[0]._);
                             if ((name.toUpperCase().includes("SEMESTRE 5"))||(name.toUpperCase().includes("SEMESTRE 6"))) {
                                 (result.CDM['ns3:program']).forEach(program => {
                                     if ((program["ns3:programID"])[0]._ === id.$.ref) {
@@ -42,6 +42,7 @@ var server = http.createServer(function (req, res) {
                                                             var splitDescription = description.split(' ');
                                                             var keywordsFound = [];
                                                             keywords.forEach(keyword => {
+                                                                if (keyword.split(' ').length<=1){
                                                                 for (var i = 0; i < splitDescription.length; i++) {
                                                                     if (splitDescription[i].includes("'")) {
                                                                         splitDescription[i] = splitDescription[i].substr(splitDescription[i].indexOf("'"), splitDescription[i].length);
@@ -49,6 +50,13 @@ var server = http.createServer(function (req, res) {
                                                                     }
                                                                     if (splitDescription[i].toUpperCase() === keyword.toUpperCase() && keywordsFound.indexOf(keyword) === -1) {
                                                                         keywordsFound.push(splitDescription[i]);
+                                                                    }
+                                                                }
+                                                               
+                                                                }
+                                                                else{
+                                                                    if (description.toUpperCase().includes(keyword.toUpperCase()) && keywordsFound.indexOf(keyword) === -1) {
+                                                                        keywordsFound.push(keyword);
                                                                     }
                                                                 }
                                                             });
