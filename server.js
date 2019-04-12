@@ -410,40 +410,6 @@ function getAllUE() {
   });
 }
 
-function getUesSemestre(id){
-
-  return new Promise((resolve, reject) => {
-    const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE) where u.id = "' + id + '" return s';
-
-    const resultPromise = session.run(requestCypher);
-
-    resultPromise.then((result) => {
-
-      resolve(result);
-
-    }).catch((err) => {
-      reject(err);
-    });
-  });
-}
-
-function getUesLicence(id){
-
-  return new Promise((resolve, reject) => {
-    const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE)-[r2:isSEMESTRE]->(l:LICENCE) where u.id = "' + id + '" return l';
-
-    const resultPromise = session.run(requestCypher);
-
-    resultPromise.then((result) => {
-
-      resolve(result);
-
-    }).catch((err) => {
-      reject(err);
-    });
-  });
-}
-
 async function generateTrainingPhrases(UE) {
   console.log("Generating training phrases for " + UE.name + ":" + UE.id);
   var trainingPhrasesTemplates = [

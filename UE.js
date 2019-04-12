@@ -52,5 +52,39 @@ class UE {
         });
     }
 
+    getSemestre(){
+
+        return new Promise((resolve, reject) => {
+            const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE) where u.id = "' + this.ID + '" return s';
+
+            const resultPromise = this.session.run(requestCypher);
+
+            resultPromise.then((result) => {
+
+                resolve(result);
+
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
+    getLicence(){
+
+        return new Promise((resolve, reject) => {
+            const requestCypher = 'match (u:UE)-[r:isUE]->(s:SEMESTRE)-[r2:isSEMESTRE]->(l:LICENCE) where u.id = "' + this.ID + '" return l';
+
+            const resultPromise = this.session.run(requestCypher);
+
+            resultPromise.then((result) => {
+
+                resolve(result);
+
+            }).catch((err) => {
+                reject(err);
+            });
+        });
+    }
+
 }
 module.exports = UE;
